@@ -10,7 +10,8 @@ class App extends Component {
       squares:['','','','','','','','',''],
       nextPlayer:false, // false is X, true is O
       history: [],
-      user:''
+      user:'',
+      topRank:[]
     }
   }
 
@@ -35,12 +36,12 @@ class App extends Component {
     })
   }
 
-  postData = async ()=> {
+  postData = async (duration)=> {
     console.log("here")
     let data = new URLSearchParams();
 
     data.append("player", this.state.user);
-    data.append("score", 3);
+    data.append("score", duration);
 
     const url = `https://ftw-highscores.herokuapp.com/tictactoe-dev`;
 
@@ -60,20 +61,20 @@ class App extends Component {
     const url = `https://ftw-highscores.herokuapp.com/tictactoe-dev`;
     let data = await fetch(url);
     let result = await data.json();
-    console.log("data from api", result)
+    this.setState({topRank:data.items})
   }
 
   render(){
-    // if (!this.state.user){
-    //   return(
-    //     <FacebookLogin
-    //       appId="100004305826702"
-    //       autoLoad={true}
-    //       fields="name,email,picture"
-    //       callback={this.responseFacebook}
-    //     />
-    //   )
-    // } 
+    if (!this.state.user){
+      return(
+        <FacebookLogin
+          appId="1245020535681449"
+          autoLoad={true}
+          fields="name,email,picture"
+          callback={this.responseFacebook}
+        />
+      )
+    } 
     return (
       <div>
         <h1>User info: {this.state.user}</h1>
@@ -85,6 +86,17 @@ class App extends Component {
           setParentState={this.setParentState}
           postData={this.postData}
         />
+        <ol>
+          {
+            this.state.topRank.map((item)=>{
+              return (
+                <li>
+                  {item.player}:{item.score}
+                </li>
+              )
+            })
+          }
+        </ol>
         <ul>
           {
             this.state.history.map((item, idx)=> {

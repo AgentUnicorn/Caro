@@ -1,9 +1,16 @@
 import React, { Component } from 'react'
 import Square from './Square'
 
+
+let  startTime = 0;
+let gameOver = false;
 export default class Board extends Component {
-      
+
     onSquareClicked=(i) => {
+        if (startTime == 0) {
+            startTime = Date.now();
+        }
+
         console.log("the box number you click", i)
         //1.make one array and copy value from parents array
         let squareList = this.props.squares.slice();
@@ -11,6 +18,7 @@ export default class Board extends Component {
         squareList[i]=this.props.nextPlayer?"O":"X"
         //3.insert that array into parents array
         this.props.setParentState({squares:squareList,nextPlayer:!this.props.nextPlayer,history:[...this.props.history,{squares:squareList,nextPlayer:!this.props.nextPlayer}]})
+
     }
 
     calculateWinner = () => {
@@ -35,18 +43,25 @@ export default class Board extends Component {
 
     render() {
         let status='';
-        let winner = this.calculateWinner();
-        if (winner) {
-            this.props.postData();
-            status = `Winner is ${winner}`
+        if (gameOver){
+            status = `Game Over`
         } else {
-            status = this.props.nextPlayer? `next player is O`: `next player is X`
+            let winner = this.calculateWinner();
+            if (winner) {
+                let duration = Date.now() - startTime
+                this.props.postData(duration);
+                status = `Winner is ${winner}`
+                gameOver = true;
+            } else {
+                status = this.props.nextPlayer? `next player is O`: `next player is X`
+            }
         }
+        
 
         return (
             <div>
 
-                <h1>{winner}</h1>
+                {/* <h1>{this.winner}</h1> */}
                 <h2>{status}</h2>
                 <div style={{display:"flex"}}>
                     <Square value={this.props.squares[0]} onClick={()=>this.onSquareClicked(0)}/>
